@@ -34,15 +34,12 @@
   .app-shell {
     background: #FFD100;
     flex: 1;
-    display: none;
+    display: flex;
     flex-direction: column;
     margin: 19px 6px;
     border-radius: 14px;
     overflow: hidden;
     min-height: 0;
-  }
-  .app-shell.unlocked {
-    display: flex;
   }
   header {
     background: #000;
@@ -184,15 +181,6 @@
 </head>
 <body>
 
-<div id="password-gate" style="position:fixed; inset:0; background:#1a1a1a; display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px;">
-  <div style="background:#fff; border-radius:14px; padding:2rem 1.5rem; max-width:320px; width:100%; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
-    <p style="font-weight:700; font-size:16px; margin:0 0 4px; color:#1a1a1a;">Champion Power Equipment</p>
-    <p style="font-size:13px; color:#666; margin:0 0 16px;">Enter password to view queue overview</p>
-    <input type="password" id="gate-password" placeholder="Password" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc; font-size:14px; box-sizing:border-box; margin-bottom:10px;" />
-    <button id="gate-submit" style="width:100%; padding:10px; border-radius:8px; border:none; background:#1c2b4a; color:#fff; font-weight:600; font-size:14px; cursor:pointer;">Enter</button>
-    <p id="gate-error" style="color:#c62828; font-size:12px; margin:10px 0 0; display:none;">Incorrect password, try again.</p>
-  </div>
-</div>
 <div class="app-shell">
 
 <header>Champion Power Equipment</header>
@@ -255,52 +243,6 @@
 </main>
 </div>
 
-<script>
-(function() {
-  var CORRECT_PASSWORD = "champion2026";
-  var SESSION_KEY = "cpe_dashboard_unlocked";
-
-  var gate = document.getElementById('password-gate');
-  var input = document.getElementById('gate-password');
-  var submitBtn = document.getElementById('gate-submit');
-  var errorMsg = document.getElementById('gate-error');
-  var appShell = document.querySelector('.app-shell');
-
-  function unlock() {
-    gate.style.display = 'none';
-    appShell.classList.add('unlocked');
-    try { sessionStorage.setItem(SESSION_KEY, 'true'); } catch (e) {}
-    if (window.startDashboard) window.startDashboard();
-  }
-
-  function tryPassword() {
-    if (input.value === CORRECT_PASSWORD) {
-      unlock();
-    } else {
-      errorMsg.style.display = 'block';
-      input.value = '';
-      input.focus();
-    }
-  }
-
-  submitBtn.addEventListener('click', tryPassword);
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') tryPassword();
-  });
-
-  var alreadyUnlocked = false;
-  try { alreadyUnlocked = sessionStorage.getItem(SESSION_KEY) === 'true'; } catch (e) {}
-  if (alreadyUnlocked) {
-    gate.style.display = 'none';
-    appShell.classList.add('unlocked');
-    window.addEventListener('load', function() {
-      if (window.startDashboard) window.startDashboard();
-    });
-  } else {
-    input.focus();
-  }
-})();
-</script>
 <script>
 (function() {
   var FLOW_URL = "https://bface2484326e4f58da4dd3aadfba7.17.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/553d43deab444d689cdd502d7c27de05/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RsWSHFO8d7l0ek0jDk6u1Z5VlAcCZnZsRfikC0NmuZM";
@@ -380,10 +322,11 @@
   autoRefresh.addEventListener('change', scheduleRefresh);
   refreshInterval.addEventListener('change', scheduleRefresh);
 
-  window.startDashboard = function() {
+  window.addEventListener('load', function() {
     fetchData();
     scheduleRefresh();
-  };
+  });
+
 })();
 </script>
 
